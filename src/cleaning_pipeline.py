@@ -28,5 +28,28 @@ if __name__ == '__main__':
        'version', 'stateabb', 'ccode_nmcdf', 'year_nmcdf', 'version_nmcdf', 'tpop', 'ccode_tradedf']
     df_drop = df_dumb.drop(drop_list, axis = 1)
 
-
+#pickling for some EDA which used the dummy variables
     df_drop.to_pickle('../data/pickles/df_drop.pkl')
+
+#drop the dummy variable ['Parliamentary Democracy'] and assign to a new DF
+
+df_one_hot = df_drop.drop('Parliamentary Democracy', axis =1 )
+
+#do some more feature engineering - add trade balance and percent of the population that is urban
+
+df_one_hot['trade balance'] = df_one_hot['exports'] - df_one_hot['imports']
+df_one_hot['urban_percent'] = (df_one_hot['upop']*1000)/df_one_hot['population']
+df_one_hot['mil_percent'] = (df_one_hot['milper']*1000)/df_one_hot['population']
+
+
+#drop the remaining non-integer variables to prepare for a random forest
+drop_list_2 = ['ccode', 'country', 'leader', 'government']
+
+df_one_hot_num = df_one_hot.drop(drop_list_2, axis = 1)
+
+df_one_hot_num.to_pickle('../data/pickles/df_one_hot_num.pkl')
+
+
+
+
+

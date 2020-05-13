@@ -6,24 +6,35 @@ Modeling Coups and Other Violent Power Transitions
 
 #The Data
 
-I used the REIGN dataset (see citation below) from One Earth Future for details on country leaders, government types, and when successful and attempted coups occured. I supplemented this with indicators from the World Bank and 
+I used the REIGN dataset (see citation below) from One Earth Future for details on country leaders, government types, and when successful and attempted coups occured. I supplemented this with indicators from the Correlates of War project, which had information on population, trade, and militarization. 
 
-I created a data cleaning pipeline to process the different data sources
+I created used a script to generate a variable that was a hybrid of the country code and the year for each row in the data, and used this to join the yearly data from the C.O.W. datasets with the monthly data in the REIGN dataset.
 
 # EDA (Describe Characteristics of the Dataset)
 
+Bolivia had the largest number of both coups and attempted coups, with a number of other Latin American nations in the top 15
+
 ![coups by country](images/coupsbycountry.png)
+
+Personal Dictatorships and Presidential Democracies suffered the greatest number of coups overall. This would seem to indicate that coups tend to occur (overall) in places which power is invested in a single person, whether democratically or not. 
 
 ![coups by governments](images/coupsbygovttotal.png)
 
+When scaled by the number of months that each government type existed in the dataset, however, the interim government types (provisional civilian and provisional military) experienced the highest rate of coups, with indirect military rule also experiencing a high rate. This suggests, fairly intuitively, the government types associated with instability or miltary rule experience the most coups
+
 ![coups by governments %](images/coupsbygovtpercent.png)
+
+Likewise, when looking at leader tenuse, the largest number of coups happen within the first year of a leader's rule
 
 ![coups by leader tenure](images/coupsbyleadertenure.png)
 
+Overall, coups appear to have spiked in the 1960's and subsequently declines, albeit with spikes in the mid-1970's (probably linked to operation CONDOR in South America) and the early 1990's (likely linked to the instability caused by the fall and dissolution of the USSR.)
+
 ![coups by year](images/coupsyearly.png)
 
+# Feature Engineering
 
-
+I decided to create some new features out of combinations of others – the trade balance for the country, the percentage of the population that was in the military, and the percentage of the population in urban areas.
 
 # Modeling: 
 
