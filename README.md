@@ -1,12 +1,12 @@
-![Hard to be a god](images/misc/pateras.png)
+![Whipala](images/misc/whipala.png)
 
-Modeling Coups and Other Violent Power Transitions
+# Modeling Coups and Other Violent Power Transitions
 
-#Introduction:
+## Introduction:
 
+...........
 
-
-#The Data
+# The Data
 
 I used the REIGN dataset (see citation below) from One Earth Future for details on country leaders, government types, and when successful and attempted coups occured. I supplemented this with indicators from the Correlates of War project, which had information on population, trade, and militarization. 
 
@@ -17,6 +17,7 @@ By filtering the dataframe for months in which attempted coups took place and a 
 ![argentina_df](images/Argentina.png)
 
 
+# Data Cleaning
 
 I created used a script to generate a variable that was a hybrid of the country code and the year for each row in the data, and used this to join the yearly data from the C.O.W. datasets with the monthly data in the REIGN dataset.
 
@@ -49,7 +50,6 @@ Overall, coups appear to have spiked in the 1960's and subsequently declines, al
 
 I decided to create some new features out of combinations of others – the trade balance for the country, the percentage of the population that was in the military, and the percentage of the population in urban areas. I also one hot encoded the different government types that were in the 'government' column.
 
-
 # Modeling: 
 
 A major challenge in modeling was the extreme imbalance of the classes: out of 106008 thousands rows (representing months between January 1950 and December 2006), only 443 had an attempted coup. A model that always predicted a coup wouldn't happen would automatically feature an accuracy upwards of 99.5%, but would completely miss the point of the investigation. Instead of focusing on accuracy, I was really curious about training a model with strong precision and recall. However, the thing I really cared about was interpretability of the model, so I decided to first focus on a creating an inferential model using a logistic regression. In order to avoid collinear features messing up the interpretation, I calculated the Variance Inflation Factors for the non-target features in my dataset and dropped features until everything had a score of below 10, which is the standard rule of thumb. 
@@ -63,6 +63,39 @@ Using a scaled version of my dataset, I used a logistic regression with 5-fold c
 - Random Forest
 
 - XGboost
+
+# Results: Logistic Regression
+
+## Strongest Positive Indicators
+
+| Feature                | Coefficient | Description |
+|------------------------|-------------|-------------|
+| milex                  |13.981701   | Military expenditures |
+| trade balance          | 5.096419    | Trade balance (exports - imports) |
+| lastelection           | 4.602407    | Months since the last election|
+| prev_conflict          | 2.435943    | Dummy variable for a violent civil conflict in the past 6 months
+| Provisional - Civilian | 1.853427    | Dummy variable for an interim civilian coverment |
+| milper                 | 1.630274    | Total Military Personnel |
+| Warlordism             | 1.462509    | Dummy variable for rule by warlords (currently applies to Yemen and Libya) |
+| Military               |  1.404612    | Rule by a military junta |
+| Indirect Military      | 1.357380    | Rule by a military junta with a civilian puppet |
+| Military-Personal      |  1.339073    | Rule by a military junta consolidated around a single figure (ex. Pinochet in Chile) |
+
+## Strongest Negative Indicators
+
+| Feature             | Coefficient |  Description |
+|------------------|------------|---|
+| irst             | -56.0 | Iron and steel production |
+| indirect_recent  | -9.4  | Dummy variable for the 6 months following an indirect election (controlled by elites rather than popular vote)  |
+| population       | -7.6  | Total population  |
+| irregular        | -4.9  | Dummy variable for an an anticipated irregular election  |
+| mil_percent      | -4.5  | Military Personnel as a percentage of the total popuation  |
+| ref_ant          | -2.2  | A referendum is expected in the next 6 months  | 
+| year             | -2.0  | Year  |
+| precip           | -0.8  | Precipition relative to histoical average  |
+| loss             | -0.7  | Number of months since the incumbent or political party has lost an election (or changed, in the absence of elections) |
+| leg_ant          | -0.7  | Dummy variable for a legislative election expected in the next 6 months  |
+
 
 # Future Steps
 
