@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 
-
 if __name__ == '__main__':
 # read in dataframes
     reign_df = pd.read_csv('../data/REIGN_2020_5.csv')

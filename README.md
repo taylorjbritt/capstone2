@@ -34,7 +34,7 @@ Overall, coups appear to have spiked in the 1960's and subsequently declines, al
 
 # Feature Engineering
 
-I decided to create some new features out of combinations of others – the trade balance for the country, the percentage of the population that was in the military, and the percentage of the population in urban areas.
+I decided to create some new features out of combinations of others – the trade balance for the country, the percentage of the population that was in the military, and the percentage of the population in urban areas. I also one hot encoded the different government types that were in the 'government' column.
 
 # Modeling: 
 
