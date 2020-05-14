@@ -1,6 +1,8 @@
-![Whipala](images/misc/whipala.png)
+
 
 # Modeling Coups and Other Violent Power Transitions
+
+![Whipala](images/misc/whipala.png)
 
 ## Introduction:
 
@@ -65,6 +67,13 @@ Using a scaled version of my dataset, I used a logistic regression with 5-fold c
 - XGboost
 
 # Results: Logistic Regression
+
+accuracy = 0.71
+recall = 0.78
+precision = 0.01
+f1 score = 0.02
+accuracy + recall = 1.5
+
 
 ## Strongest Positive Indicators
 
