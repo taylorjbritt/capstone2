@@ -2,17 +2,30 @@
 
 Modeling Coups and Other Violent Power Transitions
 
-#Summary:
+#Introduction:
+
+
 
 #The Data
 
 I used the REIGN dataset (see citation below) from One Earth Future for details on country leaders, government types, and when successful and attempted coups occured. I supplemented this with indicators from the Correlates of War project, which had information on population, trade, and militarization. 
 
+The Reign dataset contained 135,637 rows covering January 1950 unitl March 2020, with 200 countries, 466 attempted coups (successful or unsuccessful) and 233 successful ones. 
+
+By filtering the dataframe for months in which attempted coups took place and a certain country, it was sometimes possible to trace their tumultuous journey through the latter half of the 20th century. For instance, looking at Argentina below, you can see the overthrow of Juan Perón in 1955, followed by a decade and a half of successive coups. Perón returned to Argentina in 1973 but died the following year – his Vice President and wife, Isabel, took power, but was overthrown in 1976 and replaced by a junta  
+
+![argentina_df](images/Argentina.png)
+
+
+
 I created used a script to generate a variable that was a hybrid of the country code and the year for each row in the data, and used this to join the yearly data from the C.O.W. datasets with the monthly data in the REIGN dataset.
 
-# EDA (Describe Characteristics of the Dataset)
+Combining several different datasets that spanned different ranges of time presented a problem – most of the C.O.W. datasets were missing years after 2010, while the indicators collected by the World Bank only began at 1960 at the earliest, although a cursory examination showed that many began quite a bit later. This meant that I had to decide whether to lose the 1950's or the most recent decade. I decided to work with the C.O.W. datasets and keep the earlier decade, which preserved more instances of my target, but did limit the range of features that I could add to the REIGN dataset. I was able to engineer some of the features I was interested in by combining columns in the C.O.W. datasets (for instance, the percentage of the population in the military and trade balance), but a lot of other potentially interesting indicators had to be left behind.  
 
-Bolivia had the largest number of both coups and attempted coups, with a number of other Latin American nations in the top 15
+
+# EDA
+
+Bolivia had the largest number of both coups and attempted coups, with a number of other Latin American nations in the top 15.
 
 ![coups by country](images/coupsbycountry.png)
 
@@ -24,7 +37,7 @@ When scaled by the number of months that each government type existed in the dat
 
 ![coups by governments %](images/coupsbygovtpercent.png)
 
-Likewise, when looking at leader tenuse, the largest number of coups happen within the first year of a leader's rule
+Likewise, when looking at leader tenures, the largest number of coups happen within the first year of a leader's rule
 
 ![coups by leader tenure](images/coupsbyleadertenure.png)
 
@@ -36,7 +49,14 @@ Overall, coups appear to have spiked in the 1960's and subsequently declines, al
 
 I decided to create some new features out of combinations of others – the trade balance for the country, the percentage of the population that was in the military, and the percentage of the population in urban areas. I also one hot encoded the different government types that were in the 'government' column.
 
+
 # Modeling: 
+
+A major challenge in modeling was the extreme imbalance of the classes: out of 106008 thousands rows (representing months between January 1950 and December 2006), only 443 had an attempted coup. A model that always predicted a coup wouldn't happen would automatically feature an accuracy upwards of 99.5%, but would completely miss the point of the investigation. Instead of focusing on accuracy, I was really curious about training a model with strong precision and recall. However, the thing I really cared about was interpretability of the model, so I decided to first focus on a creating an inferential model using a logistic regression. In order to avoid collinear features messing up the interpretation, I calculated the Variance Inflation Factors for the non-target features in my dataset and dropped features until everything had a score of below 10, which is the standard rule of thumb. 
+
+In order to deal with the problem of imbalanced classes, I experimented with several tecniques while evaluating the performance of a simple logistic regression. I found that oversampling and SMOTE tended to perform fairly well, but SMOTE offered slightly better recall, so I primarily used SMOTE as my sampling technique (however, in my pipeline I did build in the option to try downsampling and upsampling instead.) I also made sure to stratify my target column when using a test train split to ensure that the model would have a reasonable number of targets to predict on when I tested it. 
+
+Using a scaled version of my dataset, I used a logistic regression with 5-fold cross validation and an elastic net regularizar to derive a list of relative feature importances and their direction: 
 
 - Logistic Regression
 
@@ -45,6 +65,10 @@ I decided to create some new features out of combinations of others – the trad
 - XGboost
 
 # Future Steps
+
+Given more time, I would like to experiment with adding features from the World Bank dataset, however, given the inconsistency of the data, this will likely require a lot of extrapolation, and the differing country labels will require a lot of tedious cleaning and dictionary building. I would also like to experiment with more feature engineering, perhaps by creating new features that are nonlinear combinations of other features, which I think might identify interesting patterns and trends in the data.
+
+
 
 
 
@@ -70,26 +94,18 @@ Erik Melander, Therése Pettersson, and Lotta Themnér (2016) Organized violence
 
 ## Correlates of War Datasets
 
-Colonial Contiguity:
-
-Correlates of War Project. Colonial Contiguity Data, 1816-2016. Version 3.1. 
-
-Military Alliances:
-
-Gibler, Douglas M. 2009. International military alliances, 1648-2008. CQ Press.  
-
-Dyadic Trade:
+Trade:
 
 Barbieri, Katherine and Omar M. G. Omar Keshk. 2016. Correlates of War Project Trade Data Set Codebook, Version 4.0. Online: http://correlatesofwar.org. 
 
 Barbieri, Katherine, Omar M. G. Keshk, and Brian Pollins. 2009. “TRADING DATA: Evaluating our Assumptions and Coding Rules.” Conflict Management and Peace Science. 26(5): 471-491.
 
-Religion: 
+https://correlatesofwar.org/data-sets/bilateral-trade
 
- Zeev Maoz and Errol A. Henderson. 2013. “The World Religion Dataset, 1945-2010: Logic, Estimates, and Trends.” International Interactions, 39: 265-291. 
+Barbieri, Katherine, Omar M. G. Keshk, and Brian Pollins. 2009. “TRADING DATA: Evaluating our Assumptions and Coding Rules.” Conflict Management and Peace Science. 26(5): 471-491.
 
-Militarized Interstate Dispute Locations
+National Material Capabilities:
 
- Braithwaite, A. 2010. “MIDLOC: Introducing the Militarized Interstate Dispute (MID) Location Dataset.” Journal of Peace Research 47(1): 91-98.
+Singer, J. David, Stuart Bremer, and John Stuckey. (1972). "Capability Distribution, Uncertainty, and Major Power War, 1820-1965." in Bruce Russett (ed) Peace, War, and Numbers, Beverly Hills: Sage, 19-48.
 
-Bezerra, P., & Braithwaite, A. 2019. Codebook for the Militarized Interstate Dispute Location (MIDLOC-A/I) Dataset, v2.1.
+https://correlatesofwar.org/data-sets/national-material-capabilities
