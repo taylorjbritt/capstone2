@@ -3,10 +3,11 @@
 # Modeling Military Coups 
 
 ![Whipala](images/misc/whipala.png)
+[Source](https://www.mintpressnews.com/media-silent-bolivia-massacre-indigenous-protesters/262858/)
 
 ## Introduction:
 
-I spent a few years living in Argentina and travelled around a few other countries in South America, and I was always struck by how much of their 20th century history was defined by military coups, which often led to periods of chaos, repression, and terrible atrocities. The removal of Evo Morales in Bolivia last year and the somewhat farcical attempted coup in Bolivia this month showed that these events are ongoing. 
+I spent a few years living in Argentina and travelled around a few other countries in South America, and I was always struck by how much of their 20th century history was defined by military coups, which often led to periods of chaos, repression, and terrible atrocities. The removal of Evo Morales in Bolivia last year and the somewhat farcical attempted overthrow of the government in Venezuela this month showed that these events are ongoing. 
 
 I recently read a Soviet science fiction novel in which scientists from Earth travel to another planet that is also populated by humans, but mired in a dark ages level of technology and social organization. When one of the scientists (posing as a local semi-divine lord) notices an emerging fascist movement in the city he lives in, the other scientists ignore his pleas for help, as this political development contradicts their models of how human civilization develops. 
 
@@ -20,8 +21,7 @@ The Reign dataset contained 135,637 rows covering January 1950 unitl March 2020,
 
 By filtering the dataframe for months in which attempted coups took place and a certain country, it was sometimes possible to trace their tumultuous journey through the latter half of the 20th century. For instance, looking at Argentina below, you can see the overthrow of Juan Perón in 1955, followed by a decade and a half of successive coups. Perón returned to Argentina in 1973 but died the following year – his Vice President and wife, Isabel, took power, but was overthrown in 1976 and replaced by a junta  
 
-![argentina_df](images/Argentina.png)
-
+![argentina_df](images/misc/argentina.png)
 
 # Data Cleaning
 
@@ -72,22 +72,16 @@ In order to avoid collinear features messing up the interpretation, I calculated
 
 In order to deal with the problem of imbalanced classes, I experimented with several techniques while evaluating the performance of a simple logistic regression. I found that oversampling and SMOTE tended to perform fairly well, but SMOTE offered slightly better recall, so I primarily used SMOTE as my resampling method (however, in my pipeline I did build in the option to try downsampling and upsampling instead.) I also made sure to stratify my target column when using a test train split to ensure that the model would have a reasonable number of targets to predict on when I tested it. 
 
-Using a scaled version of my dataset, I used a logistic regression with 5-fold cross validation and an elastic net regularizar to derive a list of relative feature importances and their direction: 
+Using a scaled version of my dataset, I used a logistic regression with 5-fold cross validation and an elastic net regularizar to derive a list of relative feature importances and their direction.
 
-- Logistic Regression
-
-- Random Forest
-
-- XGboost
 
 # Results: Logistic Regression
 
 | Metric | Value |
 |--------|-------|
 | Accuracy| 0.71 |
-| Recall| | 0.78 |
+| Recall|  0.78 |
 | Precision|0.01 |
-
 
 
 ## Strongest Positive Indicators
@@ -121,6 +115,17 @@ Using a scaled version of my dataset, I used a logistic regression with 5-fold c
 | leg_ant          | -0.7  | Dummy variable for a legislative election expected in the next 6 months  |
 
 
+## Random Forest
+
+I also experimented with using a random forest and some other ensemble methods to see if I could get a better mix of recall and accuracy. I found that the best performance came from a random forest using upsampling and limited to a depth of around 3, with a higher number of estimators. Boosting methods like Adaboost and GradientBoost tended to invariably overfit and were worse performers. 
+
+| Metric | Value |
+|--------|-------|
+| Accuracy| 0.68 |
+| Recall|  0.77 |
+| Precision|0.01 |
+
+
 # Future Steps
 
 Given more time, I would like to experiment with adding features from the World Bank dataset, however, given the inconsistency of the data, this will likely require a lot of extrapolation, and the differing country labels will require a lot of tedious cleaning and dictionary building. I would also like to experiment with more feature engineering, perhaps by creating new features that are nonlinear combinations of other features, which I think might identify interesting patterns and trends in the data.
@@ -129,9 +134,9 @@ Given more time, I would like to experiment with adding features from the World 
 
 
 
-#Citations:
+# Citations:
 
-##REIGN Dataset:
+## REIGN Dataset:
 
 Bell, Curtis. 2016. The Rulers, Elections, and Irregular Governance Dataset (REIGN). Broomfield, CO: OEF Research. Available at oefresearch.org
 

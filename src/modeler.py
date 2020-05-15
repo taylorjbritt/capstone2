@@ -1,21 +1,20 @@
 import numpy as np
 import pandas as pd
-
 from sklearn import tree
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn import metrics
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, r2_score
 from sklearn.utils import resample
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
-
-
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.tools.tools import add_constant
 from statsmodels.regression.linear_model import OLS
-
+from sklearn.datasets import make_hastie_10_2
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
+from sklearn.inspection import plot_partial_dependence
 from imblearn.over_sampling import SMOTE
+
 def scaler(X_train, X_test, minmax = False):
     '''
     Arguments: X_train and X_test data
@@ -160,6 +159,8 @@ def metric_test(model, X_test, y_test):
     print('recall = ' + str(recall_score(y_test, preds)))
     print('precision = ' + str(precision_score(y_test, preds)))
     print('f1 score = ' + str(f1_score(y_test, preds)))
+    print('r2_score = ' + str(r2_score(y_test, preds)))
+
 
 def fit_test_model(model, X_train, X_test, y_train, y_test, indices, do_metric_test = True, get_features = False):
     '''
@@ -209,3 +210,14 @@ if __name__ == '__main__':
     X_train, X_test, y_train, y_test, feature_weights = data_pipeline(df, target = 'pt_attempt', test_size = .25, random_state = 29, VIF_drop = True, scaled = True, minmax = True, resampler = 'smote', sample_ratio = 1)
 
     fit_test_model(ridge_scaled, X_train, X_test, y_train, y_test, feature_weights, get_features = True)
+    
+    metric_test(ridge_scaled, X_test, y_test)
+
+
+
+    #random forest
+    X_train, X_test, y_train, y_test, indices = data_pipeline(df, target = 'pt_attempt', test_size = .25, random_state = 30, VIF_drop = True, scaled = False, minmax = False, resampler = 'downsample', sample_ratio = 1)
+
+    clf = RandomForestClassifier( n_estimators = 1000, max_depth = 3)
+    clf.fit(X_train, y_train)
+    metric_test(clf, X_test, y_test)
