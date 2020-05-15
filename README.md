@@ -1,11 +1,9 @@
-
-
 # Modeling Military Coups 
 
 ![Whipala](images/misc/whipala.png)
-[Source](https://www.mintpressnews.com/media-silent-bolivia-massacre-indigenous-protesters/262858/)
+A protestor with a flag representing the indigenous communities of the Andes makes an entreaty to solidiers in Bolivia in 2019. [Source](https://www.mintpressnews.com/media-silent-bolivia-massacre-indigenous-protesters/262858/)
 
-## Introduction:
+## Introduction
 
 I spent a few years living in Argentina and travelled around a few other countries in South America, and I was always struck by how much of their 20th century history was defined by military coups, which often led to periods of chaos, repression, and terrible atrocities. The removal of Evo Morales in Bolivia last year and the somewhat farcical attempted overthrow of the government in Venezuela this month showed that these events are ongoing. 
 
@@ -13,7 +11,7 @@ I recently read a Soviet science fiction novel in which scientists from Earth tr
 
 These two topics provoked me to wonder if I could apply machine learning techniques to predict when coups happen in different countries based on economic and political statistics. Fortunately, I discovered that political scientists were also interested in this question, and had created a dataset that tracked military coups called REIGN. I decided to try to create my own model using REIGN and supplementary data to see I could model coups fairly accurately and see what features influenced the occurence of coups. 
 
-# The Data
+## The Data
 
 I used the REIGN dataset (see citation below) from One Earth Future for details on country leaders, government types, and when successful and attempted coups occured. I supplemented this with indicators from the Correlates of War project, which had information on population, trade, and militarization. 
 
@@ -23,20 +21,22 @@ By filtering the dataframe for months in which attempted coups took place and a 
 
 ![argentina_df](images/misc/argentina.png)
 
-# Data Cleaning
+## Data Cleaning
 
 I created used a script to generate a variable that was a hybrid of the country code and the year for each row in the data, and used this to join the yearly data from the C.O.W. datasets with the monthly data in the REIGN dataset.
 
 Combining several different datasets that spanned different ranges of time presented a problem – most of the C.O.W. datasets were missing years after 2010, while the indicators collected by the World Bank only began at 1960 at the earliest, although a cursory examination showed that many began quite a bit later. This meant that I had to decide whether to lose the 1950's or the most recent decade. I decided to work with the C.O.W. datasets and keep the earlier decade, which preserved more instances of my target, but did limit the range of features that I could add to the REIGN dataset. I was able to engineer some of the features I was interested in by combining columns in the C.O.W. datasets (for instance, the percentage of the population in the military and trade balance), but a lot of other potentially interesting indicators had to be left behind.  
 
 
-# EDA
+## EDA
 
 Bolivia had the largest number of both coups and attempted coups, with a number of other Latin American nations in the top 15.
+
 
 ![coups by country](images/coupsbycountry.png)
 
 Personal Dictatorships and Presidential Democracies suffered the greatest number of coups overall. This would seem to indicate that coups tend to occur (overall) in places which power is invested in a single person, whether democratically or not. 
+
 
 ![coups by governments](images/coupsbygovttotal.png)
 
@@ -47,24 +47,28 @@ When scaled by the number of months that each government type existed in the dat
 
 While looking through the column different government types, I began to wonder what types of governments were most common, but scaled to population of people who lived under that government in a given moment in time. If you were to sum up all of human experience between 1950 and 2006 and picked at random, here are the probabilities for what kind of governement you'd be living under:
 
+
 ![governments by population over time](images/ruledpiecomplex.png)
 
 
 Likewise, when looking at leader tenures, the largest number of coups happen within the first year of a leader's rule
 
+
 ![coups by leader tenure](images/coupsbyleadertenure.png)
 
+
 Overall, coups appear to have spiked in the 1960's and subsequently declines, albeit with spikes in the mid-1970's (probably linked to operation CONDOR in South America) and the early 1990's (likely linked to the instability caused by the fall and dissolution of the USSR.)
+
 
 ![coups by year](images/coupsyearly.png)
 
 
 
-# Feature Engineering
+## Feature Engineering
 
 I decided to create some new features out of combinations of others – the trade balance for the country, the percentage of the population that was in the military, and the percentage of the population in urban areas. I also one hot encoded the different government types that were in the 'government' column.
 
-# Modeling: 
+## Modeling 
 
 A major challenge in modeling was the extreme imbalance of the classes: out of 106008 thousands rows (representing months between January 1950 and December 2006), only 443 had an attempted coup. A model that always predicted a coup wouldn't happen would automatically feature an accuracy upwards of 99.5%, but would completely miss the point of the investigation. Instead of focusing on accuracy, I was really curious about training a model with strong precision and recall. However, the thing I really cared about was interpretability of the model, so I decided to first focus on a creating an inferential model using a logistic regression. 
 
@@ -75,7 +79,7 @@ In order to deal with the problem of imbalanced classes, I experimented with sev
 Using a scaled version of my dataset, I used a logistic regression with 5-fold cross validation and an elastic net regularizar to derive a list of relative feature importances and their direction.
 
 
-# Results: Logistic Regression
+## Results: Logistic Regression
 
 | Metric | Value |
 |--------|-------|
@@ -126,7 +130,7 @@ I also experimented with using a random forest and some other ensemble methods t
 | Precision|0.01 |
 
 
-# Future Steps
+## Future Steps
 
 Given more time, I would like to experiment with adding features from the World Bank dataset, however, given the inconsistency of the data, this will likely require a lot of extrapolation, and the differing country labels will require a lot of tedious cleaning and dictionary building. I would also like to experiment with more feature engineering, perhaps by creating new features that are nonlinear combinations of other features, which I think might identify interesting patterns and trends in the data.
 
@@ -134,9 +138,9 @@ Given more time, I would like to experiment with adding features from the World 
 
 
 
-# Citations:
+## Citations
 
-## REIGN Dataset:
+### REIGN Dataset
 
 Bell, Curtis. 2016. The Rulers, Elections, and Irregular Governance Dataset (REIGN). Broomfield, CO: OEF Research. Available at oefresearch.org
 
@@ -154,7 +158,7 @@ Powell, Jonathan & Clayton Thyne. 2011. Global Instances of Coups from 1950-Pres
 
 Erik Melander, Therése Pettersson, and Lotta Themnér (2016) Organized violence, 1989–2015. Journal of Peace Research 53(5) {{http://www.pcr.uu.se/research/ucdp/datasets/replication_datasets/}}
 
-## Correlates of War Datasets
+### Correlates of War Datasets
 
 Trade:
 
