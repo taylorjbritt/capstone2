@@ -1,12 +1,16 @@
 
 
-# Modeling Coups and Other Violent Power Transitions
+# Modeling Military Coups 
 
 ![Whipala](images/misc/whipala.png)
 
 ## Introduction:
 
-...........
+I spent a few years living in Argentina and travelled around a few other countries in South America, and I was always struck by how much of their 20th century history was defined by military coups, which often led to periods of chaos, repression, and terrible atrocities. The removal of Evo Morales in Bolivia last year and the somewhat farcical attempted coup in Bolivia this month showed that these events are ongoing. 
+
+I recently read a Soviet science fiction novel in which scientists from Earth travel to another planet that is also populated by humans, but mired in a dark ages level of technology and social organization. When one of the scientists (posing as a local semi-divine lord) notices an emerging fascist movement in the city he lives in, the other scientists ignore his pleas for help, as this political development contradicts their models of how human civilization develops. 
+
+These two topics provoked me to wonder if I could apply machine learning techniques to predict when coups happen in different countries based on economic and political statistics. Fortunately, I discovered that political scientists were also interested in this question, and had created a dataset that tracked military coups called REIGN. I decided to try to create my own model using REIGN and supplementary data to see I could model coups fairly accurately and see what features influenced the occurence of coups. 
 
 # The Data
 
@@ -36,9 +40,15 @@ Personal Dictatorships and Presidential Democracies suffered the greatest number
 
 ![coups by governments](images/coupsbygovttotal.png)
 
-When scaled by the number of months that each government type existed in the dataset, however, the interim government types (provisional civilian and provisional military) experienced the highest rate of coups, with indirect military rule also experiencing a high rate. This suggests, fairly intuitively, the government types associated with instability or miltary rule experience the most coups
+When scaled by the number of months that each government type existed in the dataset, however, the interim government types (provisional civilian and provisional military) experienced the highest rate of coups, with indirect military rule also experiencing a high rate. This suggests, fairly intuitively, the government types associated with instability or miltary rule experience the most coups.
+
 
 ![coups by governments %](images/coupsbygovtpercent.png)
+
+While looking through the column different government types, I began to wonder what types of governments were most common, but scaled to population of people who lived under that government in a given moment in time. If you were to sum up all of human experience between 1950 and 2006 and picked at random, here are the probabilities for what kind of governement you'd be living under:
+
+![governments by population over time](images/ruledpiecomplex.png)
+
 
 Likewise, when looking at leader tenures, the largest number of coups happen within the first year of a leader's rule
 
@@ -48,15 +58,19 @@ Overall, coups appear to have spiked in the 1960's and subsequently declines, al
 
 ![coups by year](images/coupsyearly.png)
 
+
+
 # Feature Engineering
 
 I decided to create some new features out of combinations of others – the trade balance for the country, the percentage of the population that was in the military, and the percentage of the population in urban areas. I also one hot encoded the different government types that were in the 'government' column.
 
 # Modeling: 
 
-A major challenge in modeling was the extreme imbalance of the classes: out of 106008 thousands rows (representing months between January 1950 and December 2006), only 443 had an attempted coup. A model that always predicted a coup wouldn't happen would automatically feature an accuracy upwards of 99.5%, but would completely miss the point of the investigation. Instead of focusing on accuracy, I was really curious about training a model with strong precision and recall. However, the thing I really cared about was interpretability of the model, so I decided to first focus on a creating an inferential model using a logistic regression. In order to avoid collinear features messing up the interpretation, I calculated the Variance Inflation Factors for the non-target features in my dataset and dropped features until everything had a score of below 10, which is the standard rule of thumb. 
+A major challenge in modeling was the extreme imbalance of the classes: out of 106008 thousands rows (representing months between January 1950 and December 2006), only 443 had an attempted coup. A model that always predicted a coup wouldn't happen would automatically feature an accuracy upwards of 99.5%, but would completely miss the point of the investigation. Instead of focusing on accuracy, I was really curious about training a model with strong precision and recall. However, the thing I really cared about was interpretability of the model, so I decided to first focus on a creating an inferential model using a logistic regression. 
 
-In order to deal with the problem of imbalanced classes, I experimented with several tecniques while evaluating the performance of a simple logistic regression. I found that oversampling and SMOTE tended to perform fairly well, but SMOTE offered slightly better recall, so I primarily used SMOTE as my sampling technique (however, in my pipeline I did build in the option to try downsampling and upsampling instead.) I also made sure to stratify my target column when using a test train split to ensure that the model would have a reasonable number of targets to predict on when I tested it. 
+In order to avoid collinear features messing up the interpretation, I calculated the Variance Inflation Factors for the non-target features in my dataset and dropped features until everything had a score of below 10, which is the standard rule of thumb, but in retrospect may have been a bit too lenient.  
+
+In order to deal with the problem of imbalanced classes, I experimented with several techniques while evaluating the performance of a simple logistic regression. I found that oversampling and SMOTE tended to perform fairly well, but SMOTE offered slightly better recall, so I primarily used SMOTE as my resampling method (however, in my pipeline I did build in the option to try downsampling and upsampling instead.) I also made sure to stratify my target column when using a test train split to ensure that the model would have a reasonable number of targets to predict on when I tested it. 
 
 Using a scaled version of my dataset, I used a logistic regression with 5-fold cross validation and an elastic net regularizar to derive a list of relative feature importances and their direction: 
 
@@ -68,34 +82,35 @@ Using a scaled version of my dataset, I used a logistic regression with 5-fold c
 
 # Results: Logistic Regression
 
-accuracy = 0.71
-recall = 0.78
-precision = 0.01
-f1 score = 0.02
-accuracy + recall = 1.5
+| Metric | Value |
+|--------|-------|
+| Accuracy| 0.71 |
+| Recall| | 0.78 |
+| Precision|0.01 |
+
 
 
 ## Strongest Positive Indicators
 
 | Feature                | Coefficient | Description |
 |------------------------|-------------|-------------|
-| milex                  |13.981701   | Military expenditures |
-| trade balance          | 5.096419    | Trade balance (exports - imports) |
-| lastelection           | 4.602407    | Months since the last election|
-| prev_conflict          | 2.435943    | Dummy variable for a violent civil conflict in the past 6 months
-| Provisional - Civilian | 1.853427    | Dummy variable for an interim civilian coverment |
-| milper                 | 1.630274    | Total Military Personnel |
-| Warlordism             | 1.462509    | Dummy variable for rule by warlords (currently applies to Yemen and Libya) |
-| Military               |  1.404612    | Rule by a military junta |
-| Indirect Military      | 1.357380    | Rule by a military junta with a civilian puppet |
-| Military-Personal      |  1.339073    | Rule by a military junta consolidated around a single figure (ex. Pinochet in Chile) |
+| milex                  |14.0   | Military expenditures |
+| trade balance          | 5.1   | Trade balance (exports - imports) |
+| lastelection           | 4.67    | Months since the last election|
+| prev_conflict          | 2.4    | Dummy variable for a violent civil conflict in the past 6 months
+| Provisional - Civilian | 1.9    | Dummy variable for an interim civilian coverment |
+| milper                 | 1.6   | Total Military Personnel |
+| Warlordism             | 1.5    | Dummy variable for rule by warlords (currently applies to Yemen and Libya) |
+| Military               |  1.4    | Rule by a military junta |
+| Indirect Military      | 1.4    | Rule by a military junta with a civilian puppet |
+| Military-Personal      |  1.3    | Rule by a military junta consolidated around a single figure (ex. Pinochet in Chile) |
 
 ## Strongest Negative Indicators
 
 | Feature             | Coefficient |  Description |
 |------------------|------------|---|
 | irst             | -56.0 | Iron and steel production |
-| indirect_recent  | -9.4  | Dummy variable for the 6 months following an indirect election (controlled by elites rather than popular vote)  |
+| indirect_recent  | -9.4  | Dummy variable for the 6 months following an indirect election (controlled by elites rather than popular vote)  For example, Xi Jinping's elevation by party elites in China|
 | population       | -7.6  | Total population  |
 | irregular        | -4.9  | Dummy variable for an an anticipated irregular election  |
 | mil_percent      | -4.5  | Military Personnel as a percentage of the total popuation  |
