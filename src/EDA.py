@@ -20,7 +20,7 @@ if __name__ == '__main__':
     #aggregate coup attempts/successes by year
     yearly_df = reign_df.groupby('year').sum()
 
-    fig, ax = plt.subplots(figsize = (16, 8))
+    fig, ax = plt.subplots(figsize = (12, 8))
     ax.bar(yearly_df.index.values, yearly_df['pt_attempt'], color = 'blue')
     ax.bar(yearly_df.index.values, yearly_df['pt_suc'], color = 'red', width = .3)
     plt.xticks(rotation=45, fontsize = 14)
